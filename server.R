@@ -1,4 +1,4 @@
-
+################################# Server  ######################################
 
 library(plyr)
 library(dplyr)
@@ -6,6 +6,7 @@ library(tidyr)
 library(lubridate)
 library(shiny)
 library(readxl)
+library(openxlsx)
 
 shinyServer(function(input, output) {
 
@@ -35,12 +36,35 @@ shinyServer(function(input, output) {
     return(caselist)
     
   })
+  
+  
+  getData_import_template <- reactive({
+    
+    import_template <- loadWorkbook(input$import_template)
+    
+    if(is.null(import_template)){
+      return(NULL)
+    }
+    
+    # import_template <- loadWorkbook(import_template)
+    
+    test <- read.xlsx(import_template, sheet = 1)
+    
+    test[1,] <- "Test"
+    
+    import_template <- writeData(import_template,1,test, startRow = 2, colNames = FALSE)
+    
+    return(import_template)
+    
+    
+  })
+  
 # UI Display Functions ---------------------------------------------------------
   
   output$choose_school <- renderUI({
     validate(
       need(
-        input$caselist, "studentlist_error_code")
+        input$caselist, "Please Upload ")
       
     )
     
@@ -53,16 +77,29 @@ shinyServer(function(input, output) {
   }
   )
   
+# Download Output Functions ----------------------------------------------------
   
-  output$distPlot <- renderPlot({
-
-    # generate bins based on input$bins from ui.R
-    x    <- faithful[, 2]
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-    # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
-  })
+  
+  output$download_import_template <- downloadHandler(
+    filename = "myFile.xlsx",
+    content = function(file) {
+      # Do more stuff here
+      saveWorkbook(getData_import_template(), file, TRUE)
+    }
+  )
+    
+  
+  
+  # output$download_import_template <- downloadHandler(
+  #   filename = function() {
+  #     paste(
+  #       input$school, "quarter_", input$quarter,
+  #       "_metric_import_template", "xlsx", sep = ""
+  #       )
+  #   },
+  #   content = function(file) {
+  #     saveWorkbook(getData_import_template(), "file.xlsx")
+  #   }
+  # )  
 
 })
