@@ -7,9 +7,13 @@ library(lubridate)
 library(shiny)
 library(readxl)
 library(openxlsx)
+library(rsconnect)
+
+source('modify_template.r', local = TRUE)
 
 shinyServer(function(input, output) {
-
+  
+import_template <- loadWorkbook('import_template.xlsx')
   
 # Input functions --------------------------------------------------------------
   
@@ -30,9 +34,8 @@ shinyServer(function(input, output) {
       read_excel(caselist$datapath, sheet = 1,skip = 1, col_types = ct)
     )
     
+    colnames(caselist) <- make.names(colnames(caselist))
     
-    
-    # caselist <- caselist_script(caselist)
     return(caselist)
     
   })
@@ -40,19 +43,17 @@ shinyServer(function(input, output) {
   
   getData_import_template <- reactive({
     
-    import_template <- loadWorkbook(input$import_template)
-    
-    if(is.null(import_template)){
+    if(is.null(input$caselist))
       return(NULL)
-    }
     
-    # import_template <- loadWorkbook(import_template)
+    caselist <- getData_caselist()
+    subset <- get_subset(caselist, input)
     
-    test <- read.xlsx(import_template, sheet = 1)
+    import_template <- modify_attendance(import_template, subset, input)
     
-    test[1,] <- "Test"
+    import_template <- modify_suspensions(import_template, subset, input)
     
-    import_template <- writeData(import_template,1,test, startRow = 2, colNames = FALSE)
+    import_template <- modify_grades(import_template, subset, input)
     
     return(import_template)
     
@@ -70,7 +71,7 @@ shinyServer(function(input, output) {
     
     caselist <- getData_caselist()
     
-    schools <- caselist$`Home School`
+    schools <- caselist$Home.School
     
     selectInput("school", "Select Schools", as.list(schools))
     
@@ -83,23 +84,8 @@ shinyServer(function(input, output) {
   output$download_import_template <- downloadHandler(
     filename = "myFile.xlsx",
     content = function(file) {
-      # Do more stuff here
       saveWorkbook(getData_import_template(), file, TRUE)
     }
   )
-    
-  
-  
-  # output$download_import_template <- downloadHandler(
-  #   filename = function() {
-  #     paste(
-  #       input$school, "quarter_", input$quarter,
-  #       "_metric_import_template", "xlsx", sep = ""
-  #       )
-  #   },
-  #   content = function(file) {
-  #     saveWorkbook(getData_import_template(), "file.xlsx")
-  #   }
-  # )  
 
 })
