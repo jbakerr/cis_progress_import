@@ -3,11 +3,7 @@
 # Set up Environment -----------------------------------------------------------
 
 library(shiny)
-
-# Pull additional scripts to be used during process ----------------------------
-
-
-
+library(markdown)
 # Start ui function ------------------------------------------------------------
 
 shinyUI(fluidPage(
@@ -19,9 +15,6 @@ shinyUI(fluidPage(
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
-      # Import Template Upload
-      fileInput('import_template', 'Upload the CIS Provided Import Template',
-                accept = c('xlsx', '.xlsx')),
       # caselist upload 
       fileInput('caselist', 'Upload Caselist File',
                 accept = c("xlsx", '.xlsx')),
@@ -36,6 +29,13 @@ shinyUI(fluidPage(
         'quarter', 'Select Quarter to Generate Import File For',
         choices = c('1', '2', '3', '4')
         ),
+      
+      # select school year
+      selectInput(
+        'year', 'Select School Year to Generate Import File For',
+        choices = c('2018/2019 SY', '2019/2020 SY')
+      ),
+      
       # download file
       downloadButton(
         'download_import_template', 
