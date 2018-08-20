@@ -1,4 +1,4 @@
-
+################################# Server  ######################################
 
 library(plyr)
 library(dplyr)
@@ -6,9 +6,14 @@ library(tidyr)
 library(lubridate)
 library(shiny)
 library(readxl)
+library(openxlsx)
+library(rsconnect)
+
+source('modify_template.r', local = TRUE)
 
 shinyServer(function(input, output) {
-
+  
+import_template <- loadWorkbook('import_template.xlsx')
   
 # Input functions --------------------------------------------------------------
   
@@ -29,40 +34,58 @@ shinyServer(function(input, output) {
       read_excel(caselist$datapath, sheet = 1,skip = 1, col_types = ct)
     )
     
+    colnames(caselist) <- make.names(colnames(caselist))
     
-    
-    # caselist <- caselist_script(caselist)
     return(caselist)
     
   })
+  
+  
+  getData_import_template <- reactive({
+    
+    if(is.null(input$caselist))
+      return(NULL)
+    
+    caselist <- getData_caselist()
+    subset <- get_subset(caselist, input)
+    
+    import_template <- modify_attendance(import_template, subset, input)
+    
+    import_template <- modify_suspensions(import_template, subset, input)
+    
+    import_template <- modify_grades(import_template, subset, input)
+    
+    return(import_template)
+    
+    
+  })
+  
 # UI Display Functions ---------------------------------------------------------
   
   output$choose_school <- renderUI({
     validate(
       need(
-        input$caselist, "studentlist_error_code")
+        input$caselist, "Please Upload ")
       
     )
     
     caselist <- getData_caselist()
     
-    schools <- caselist$`Home School`
+    schools <- caselist$Home.School
     
     selectInput("school", "Select Schools", as.list(schools))
     
   }
   )
   
+# Download Output Functions ----------------------------------------------------
   
-  output$distPlot <- renderPlot({
-
-    # generate bins based on input$bins from ui.R
-    x    <- faithful[, 2]
-    bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-    # draw the histogram with the specified number of bins
-    hist(x, breaks = bins, col = 'darkgray', border = 'white')
-
-  })
+  
+  output$download_import_template <- downloadHandler(
+    filename = "myFile.xlsx",
+    content = function(file) {
+      saveWorkbook(getData_import_template(), file, TRUE)
+    }
+  )
 
 })
