@@ -73,7 +73,7 @@ import_template <- loadWorkbook('import_template.xlsx')
     
     schools <- caselist$Home.School
     
-    selectInput("school", "Select Schools", as.list(schools))
+    selectInput("school", "Select School", as.list(schools))
     
   }
   )
@@ -82,7 +82,7 @@ import_template <- loadWorkbook('import_template.xlsx')
   
   
   output$download_import_template <- downloadHandler(
-    filename = "myFile.xlsx",
+    filename = paste("Q", as.character(input$quarter),"_metric_import_template.xlsx", sep = ''),
     content = function(file) {
       saveWorkbook(getData_import_template(), file, TRUE)
     }
