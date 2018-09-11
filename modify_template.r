@@ -1,7 +1,5 @@
 library(openxlsx)
 
-# import_template <- loadWorkbook('import_template.xlsx')
-
 get_subset <- function(caselist, input){
   
   subset <- caselist[caselist$Home.School == input$school,]
@@ -17,6 +15,8 @@ modify_attendance <- function(import_template, subset, input){
   attendance[nrow(attendance) + nrow(subset),] <- "NA"
   
   attendance$Student.ID <- subset$Student.ID
+  
+  attendance$Name <- subset$Student
   
   attendance$Date <- input$date
   
@@ -46,6 +46,8 @@ modify_suspensions <- function(import_template, subset, input){
   
   suspensions$Student.ID <- subset$Student.ID
   
+  suspensions$Name <- subset$Student
+  
   suspensions$Date <- input$date
   
   suspensions$School <- subset$Home.School
@@ -73,6 +75,8 @@ modify_grades <- function(import_template, subset, input){
   grades[nrow(grades) + nrow(subset),] <- "NA"
   
   grades$Student.ID <- subset$Student.ID
+  
+  grades$Name <- subset$Student
   
   grades$Date <- input$date
   
