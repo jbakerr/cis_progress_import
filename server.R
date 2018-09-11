@@ -13,7 +13,7 @@ source('modify_template.r', local = TRUE)
 
 shinyServer(function(input, output) {
   
-import_template <- loadWorkbook('import_template.xlsx')
+# import_template <- loadWorkbook('import_template.xlsx')
   
 # Input functions --------------------------------------------------------------
   
@@ -42,6 +42,9 @@ import_template <- loadWorkbook('import_template.xlsx')
   
   
   getData_import_template <- reactive({
+    
+    import_template <- loadWorkbook('import_template.xlsx')
+    
     
     if(is.null(input$caselist))
       return(NULL)
