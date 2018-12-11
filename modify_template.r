@@ -16,7 +16,7 @@ modify_attendance <- function(import_template, subset, input){
   
   attendance$Student.ID <- subset$Student.ID
   
-  attendance$Name <- subset$Student
+  attendance[,1] <- subset$Student
   
   attendance$Date <- input$date
   
@@ -46,7 +46,7 @@ modify_suspensions <- function(import_template, subset, input){
   
   suspensions$Student.ID <- subset$Student.ID
   
-  suspensions$Name <- subset$Student
+  suspensions[,1] <- subset$Student
   
   suspensions$Date <- input$date
   
@@ -76,7 +76,7 @@ modify_grades <- function(import_template, subset, input){
   
   grades$Student.ID <- subset$Student.ID
   
-  grades$Name <- subset$Student
+  grades[,1] <- subset$Student
   
   grades$Date <- input$date
   
